@@ -1,5 +1,14 @@
 import { initializeApp } from "firebase/app";
 import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
+import {
+  addDoc,
+  collection,
+  getFirestore,
+  serverTimestamp,
+  onSnapshot,
+  query,
+  orderBy,
+} from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -13,6 +22,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 async function loginWithGoogle() {
   try {
@@ -31,4 +41,36 @@ async function loginWithGoogle() {
   }
 }
 
-export { loginWithGoogle };
+async function sendMessage(user, text) {
+  try {
+    await addDoc(
+      collection(db, "chat-room", "sjGheb5EqGmX9j6MISD5", "messages"),
+      {
+        uid: user.uid,
+        displayName: user.displayName,
+        text: text.trim(),
+        timestamp: serverTimestamp(),
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function getMessages(callback) {
+  return onSnapshot(
+    query(
+      collection(db, "chat-room", "sjGheb5EqGmX9j6MISD5", "messages"),
+      orderBy("timestamp", "asc")
+    ),
+    (querySnapShot) => {
+      const messages = querySnapShot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(messages);
+    }
+  );
+}
+
+export { loginWithGoogle, sendMessage, getMessages };
