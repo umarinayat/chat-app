@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MessageList } from "./components/MessageLIst";
 
 import { useAuth } from "./hooks/useAuth";
 import { sendMessage } from "./services/firebase";
@@ -17,6 +18,7 @@ const ChatRoom = () => {
     <div className="flex justify-center">
       <div className=" flex flex-row p-16 w-4/5 h-4/5 border-2 border-white ">
         <form className="w-full" onSubmit={handleSubmit}>
+          <MessageList />
           <input
             className="p-1 rounded-md bg-gray-900 text-white w-4/5 h-10"
             type="text"
